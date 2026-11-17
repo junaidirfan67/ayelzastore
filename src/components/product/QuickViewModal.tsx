@@ -88,7 +88,8 @@ export const QuickViewModal: React.FC = () => {
                   <Image
                     src={
                       quickViewProduct.images[selectedImage] ||
-                      quickViewProduct.images[0]
+                      quickViewProduct.images[0] ||
+                      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1000&q=80"
                     }
                     alt={quickViewProduct.title}
                     fill

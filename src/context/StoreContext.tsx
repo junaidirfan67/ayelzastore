@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import {
   Product,
   CartItem,
@@ -158,20 +158,20 @@ interface StoreContextType {
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 const STORAGE_KEYS = {
-  PRODUCTS: "aleyza_store_products_v1",
-  CART: "aleyza_store_cart_v1",
-  WISHLIST: "aleyza_store_wishlist_v1",
-  ORDERS: "aleyza_store_orders_v1",
-  CUSTOMERS: "aleyza_store_customers_v1",
-  COUPONS: "aleyza_store_coupons_v1",
-  CAMPAIGNS: "aleyza_store_campaigns_v1",
-  TRACKING_CONFIG: "aleyza_store_tracking_config_v1",
-  TRACKING_EVENTS: "aleyza_store_tracking_events_v1",
-  ANNOUNCEMENT: "aleyza_store_announcement_v1",
-  HERO: "aleyza_store_hero_v1",
-  PROMO_BANNER: "aleyza_store_promo_v1",
-  SUBSCRIBERS: "aleyza_store_subscribers_v1",
-  CURRENT_CUSTOMER: "aleyza_store_current_cust_v1",
+  PRODUCTS: "aleyza_store_products_v2",
+  CART: "aleyza_store_cart_v2",
+  WISHLIST: "aleyza_store_wishlist_v2",
+  ORDERS: "aleyza_store_orders_v2",
+  CUSTOMERS: "aleyza_store_customers_v2",
+  COUPONS: "aleyza_store_coupons_v2",
+  CAMPAIGNS: "aleyza_store_campaigns_v2",
+  TRACKING_CONFIG: "aleyza_store_tracking_config_v2",
+  TRACKING_EVENTS: "aleyza_store_tracking_events_v2",
+  ANNOUNCEMENT: "aleyza_store_announcement_v2",
+  HERO: "aleyza_store_hero_v2",
+  PROMO_BANNER: "aleyza_store_promo_v2",
+  SUBSCRIBERS: "aleyza_store_subscribers_v2",
+  CURRENT_CUSTOMER: "aleyza_store_current_cust_v2",
 };
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -293,60 +293,66 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   // Tracking Event Engine
-  const trackEvent = (
-    eventName: TrackingLogEvent["eventName"],
-    payload: any = {},
-    source: TrackingLogEvent["source"] = "Client (Browser Pixel)"
-  ) => {
-    const deduplicationEventId = `${eventName.toLowerCase()}-${Date.now()}-${Math.floor(
-      Math.random() * 10000
-    )}`;
+  const trackEvent = useCallback(
+    (
+      eventName: TrackingLogEvent["eventName"],
+      payload: any = {},
+      source: TrackingLogEvent["source"] = "Client (Browser Pixel)"
+    ) => {
+      const deduplicationEventId = `${eventName.toLowerCase()}-${Date.now()}-${Math.floor(
+        Math.random() * 10000
+      )}`;
 
-    const newEvent: TrackingLogEvent = {
-      id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-      timestamp: new Date().toISOString(),
-      eventName,
-      source,
-      deduplicationEventId,
-      payload,
-      status: source.includes("Server") ? "processed" : "dispatched",
-    };
+      const newEvent: TrackingLogEvent = {
+        id: `evt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        timestamp: new Date().toISOString(),
+        eventName,
+        source,
+        deduplicationEventId,
+        payload,
+        status: source.includes("Server") ? "processed" : "dispatched",
+      };
 
-    setTrackingEvents((prev) => {
-      const updated = [newEvent, ...prev.slice(0, 49)];
-      saveToStorage(STORAGE_KEYS.TRACKING_EVENTS, updated);
-      return updated;
-    });
+      setTrackingEvents((prev) => {
+        const updated = [newEvent, ...prev.slice(0, 49)];
+        saveToStorage(STORAGE_KEYS.TRACKING_EVENTS, updated);
+        return updated;
+      });
 
-    // Also trigger server-side twin if CAPI is enabled for conversion events
-    if (
-      trackingConfig.metaCapiEnabled &&
-      (eventName === "Purchase" ||
-        eventName === "InitiateCheckout" ||
-        eventName === "AddToCart") &&
-      source.includes("Client")
-    ) {
-      setTimeout(() => {
-        const capiEvent: TrackingLogEvent = {
-          id: `evt-capi-${Date.now()}`,
-          timestamp: new Date().toISOString(),
-          eventName,
-          source: "Server (Meta Conversions API / CAPI)",
-          deduplicationEventId, // same deduplication ID for Meta deduplication!
-          payload: {
-            ...payload,
-            event_source_url: typeof window !== "undefined" ? window.location.href : "https://aleyzastore.pk",
-          },
-          status: "processed",
-        };
-        setTrackingEvents((p) => {
-          const up = [capiEvent, ...p.slice(0, 49)];
-          saveToStorage(STORAGE_KEYS.TRACKING_EVENTS, up);
-          return up;
-        });
-      }, 600);
-    }
-  };
+      // Also trigger server-side twin if CAPI is enabled for conversion events
+      if (
+        trackingConfig.metaCapiEnabled &&
+        (eventName === "Purchase" ||
+          eventName === "InitiateCheckout" ||
+          eventName === "AddToCart") &&
+        source.includes("Client")
+      ) {
+        setTimeout(() => {
+          const capiEvent: TrackingLogEvent = {
+            id: `evt-capi-${Date.now()}`,
+            timestamp: new Date().toISOString(),
+            eventName,
+            source: "Server (Meta Conversions API / CAPI)",
+            deduplicationEventId, // same deduplication ID for Meta deduplication!
+            payload: {
+              ...payload,
+              event_source_url:
+                typeof window !== "undefined"
+                  ? window.location.href
+                  : "https://aleyzastore.pk",
+            },
+            status: "processed",
+          };
+          setTrackingEvents((p) => {
+            const up = [capiEvent, ...p.slice(0, 49)];
+            saveToStorage(STORAGE_KEYS.TRACKING_EVENTS, up);
+            return up;
+          });
+        }, 600);
+      }
+    },
+    [trackingConfig.metaCapiEnabled]
+  );
 
   // Product Management
   const addProduct = (product: Product) => {
@@ -809,8 +815,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const getOrderByNumber = (orderNumber: string) => {
-    const clean = orderNumber.trim().toUpperCase();
-    return orders.find((o) => o.orderNumber.toUpperCase() === clean);
+    const clean = orderNumber.trim().toUpperCase().replace(/^#/, "");
+    return orders.find(
+      (o) =>
+        o.orderNumber.toUpperCase().replace(/^#/, "") === clean ||
+        (o.trackingNumber && o.trackingNumber.toUpperCase() === clean) ||
+        o.id === orderNumber.trim()
+    );
   };
 
   // Customers

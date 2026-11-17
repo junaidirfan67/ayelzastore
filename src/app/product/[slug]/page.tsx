@@ -94,7 +94,8 @@ export default function ProductDetailPage() {
         currency: "PKR",
       });
     }
-  }, [product, trackEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product?.id]);
 
   if (!product) {
     return (

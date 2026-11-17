@@ -227,7 +227,7 @@ export const SEED_PRODUCTS: Product[] = [
     categoryLabel: "Western Wear",
     collection: "Atelier Tailoring",
     images: [
-      "https://images.unsplash.com/photo-1548624149-f9b1859aa9d0?auto=format&fit=crop&w=1000&q=80",
+      "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1000&q=80",
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1000&q=80"
     ],
     availableSizes: ["XS", "S", "M", "L"],
@@ -1097,7 +1097,7 @@ export const SEED_ORDERS: Order[] = [
         productSlug: "soraia-tailored-double-breasted-blazer-trouser",
         title: "Soraia Tailored Double-Breasted Blazer & Trouser",
         price: 18500,
-        image: "https://images.unsplash.com/photo-1548624149-f9b1859aa9d0?auto=format&fit=crop&w=600&q=80",
+        image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=600&q=80",
         size: "M",
         color: "Biscuit Sand",
         quantity: 1,

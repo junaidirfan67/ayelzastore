@@ -64,7 +64,8 @@ export default function CheckoutPage() {
         num_items: cart.length,
       });
     }
-  }, [cart, cartSubtotal, trackEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (cart.length === 0) {
     return (

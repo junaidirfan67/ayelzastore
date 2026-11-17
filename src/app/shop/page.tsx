@@ -54,7 +54,8 @@ function ShopContent() {
       page: "Shop",
       category: selectedCategory,
     });
-  }, [selectedCategory, trackEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory]);
 
   // Available categories
   const categoryList: { label: string; value: string }[] = [

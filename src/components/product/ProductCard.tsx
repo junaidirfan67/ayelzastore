@@ -19,7 +19,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const [showQuickAdd, setShowQuickAdd] = useState(false);
 
   const inWishlist = isInWishlist(product.id);
-  const hasSecondImage = product.images.length > 1;
+  const primaryImage =
+    product.images?.[0] ||
+    "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?auto=format&fit=crop&w=1000&q=80";
+  const secondaryImage = product.images?.[1];
+  const hasSecondImage = Boolean(secondaryImage);
   const discountPercent = product.compareAtPrice
     ? Math.round(
         ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
@@ -46,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <Link href={`/product/${product.slug}`} className="block w-full h-full">
           {/* Primary Image */}
           <Image
-            src={product.images[0]}
+            src={primaryImage}
             alt={product.title}
             fill
             className={`object-cover object-top transition-all duration-700 ${
@@ -56,9 +60,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           />
 
           {/* Secondary Hover Image */}
-          {hasSecondImage && (
+          {hasSecondImage && secondaryImage && (
             <Image
-              src={product.images[1]}
+              src={secondaryImage}
               alt={`${product.title} preview`}
               fill
               className={`object-cover object-top transition-all duration-700 ${
